@@ -1,47 +1,42 @@
-export default function Page() {
-  return (
-    <main
-      style={{
-        colorScheme: 'light dark',
-        position: 'relative',
-        display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'light-dark(#fff, #000)',
-        color: 'light-dark(#000, #fff)',
-      }}
-    >
-      <svg
-        aria-hidden="true"
-        style={{ width: 80, height: 80 }}
-        width={80}
-        height={80}
-        fill="none"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-        stroke="currentColor"
-        strokeWidth="0.5"
-      >
-        <path
-          d="M14.2 14.2H17V6.9375C17 4.76288 15.2371 3 13.0625 3H5.8V5.8M14.2 14.2V7.79063L7.79062 14.2H14.2ZM14.2 14.2V17H6.9375C4.76288 17 3 15.2371 3 13.0625V5.8H5.8M5.8 5.8V12.2313L12.2313 5.8H5.8Z"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <p
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 56px)',
-          transform: 'translateX(-50%)',
-          whiteSpace: 'nowrap',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: 'light-dark(#71717a, #a1a1aa)',
-        }}
-      >
-        Your v0 generation will show here.
-      </p>
-    </main>
-  )
+'use client'
+
+import { useMemo, useState } from 'react'
+import {
+  Activity, Bell, BookOpen, BrainCircuit, CalendarDays, Check, ChevronDown,
+  CircleHelp, Flame, Gauge, Goal, LayoutDashboard, Menu, MoreHorizontal,
+  Plus, Settings, Sparkles, Target, TrendingUp, UserRound, X, Zap,
+} from 'lucide-react'
+
+type View = 'Dashboard' | 'Habits' | 'Calendar' | 'Analytics' | 'ML Insights' | 'Goals' | 'Notifications' | 'Profile' | 'Settings'
+
+const nav = [
+  { label: 'Dashboard', icon: LayoutDashboard }, { label: 'Habits', icon: Check },
+  { label: 'Calendar', icon: CalendarDays }, { label: 'Analytics', icon: TrendingUp },
+  { label: 'ML Insights', icon: BrainCircuit }, { label: 'Goals', icon: Goal },
+]
+const secondary = [{ label: 'Notifications', icon: Bell }, { label: 'Profile', icon: UserRound }, { label: 'Settings', icon: Settings }]
+const habits = [
+  { name: 'Study Java', category: 'Learning', color: 'violet', progress: 86, streak: 12, time: '7:00 PM', icon: BookOpen },
+  { name: 'Morning Run', category: 'Fitness', color: 'blue', progress: 72, streak: 8, time: '6:30 AM', icon: Activity },
+  { name: 'Read 30 minutes', category: 'Personal', color: 'amber', progress: 61, streak: 5, time: '9:00 PM', icon: BookOpen },
+  { name: 'Meditation', category: 'Mindfulness', color: 'teal', progress: 91, streak: 21, time: '8:00 AM', icon: Sparkles },
+]
+const weekly = [{ day: 'Mon', value: 74 }, { day: 'Tue', value: 92 }, { day: 'Wed', value: 68 }, { day: 'Thu', value: 84 }, { day: 'Fri', value: 78 }, { day: 'Sat', value: 96 }, { day: 'Sun', value: 82 }]
+const activities = [
+  ['Study Java', 'Completed at 7:42 PM', 'violet', '2h ago'], ['Morning Run', 'Completed at 6:51 AM', 'blue', '8h ago'],
+  ['Read 30 minutes', 'Marked as missed', 'amber', 'Yesterday'], ['Meditation', '21 day streak reached', 'teal', 'Yesterday'],
+]
+
+function Logo() { return <div className="logo"><span className="logo-mark"><Zap /></span><span>Habit<span>Flow</span></span></div> }
+function Sidebar({ current, setCurrent }: { current: View; setCurrent: (v: View) => void }) {
+  return <aside className="sidebar"><Logo /><div className="workspace"><div className="avatar">AM</div><div><b>Alex Morgan</b><small>Personal workspace</small></div><ChevronDown size={15} /></div><p className="nav-label">WORKSPACE</p><nav>{nav.map(({ label, icon: Icon }) => <button className={current === label ? 'active' : ''} onClick={() => setCurrent(label as View)} key={label}><Icon size={17} />{label}{label === 'ML Insights' && <span className="new-pill">NEW</span>}</button>)}</nav><p className="nav-label lower">ACCOUNT</p><nav>{secondary.map(({ label, icon: Icon }) => <button className={current === label ? 'active' : ''} onClick={() => setCurrent(label as View)} key={label}><Icon size={17} />{label}{label === 'Notifications' && <span className="dot">3</span>}</button>)}</nav><div className="sidebar-bottom"><div className="upgrade"><Sparkles size={17}/><b>Unlock your flow</b><small>Get deeper insights with Pro.</small><button>Explore Pro <span>→</span></button></div><button className="help"><CircleHelp size={16}/> Help center</button></div></aside>
 }
+function Topbar({ setCurrent }: { setCurrent: (v: View) => void }) { return <header className="topbar"><button className="mobile-menu"><Menu size={20}/></button><div className="crumb">Workspace <span>/</span> <b>Dashboard</b></div><div className="top-actions"><button className="icon-btn" aria-label="Notifications" onClick={() => setCurrent('Notifications')}><Bell size={18}/><i /></button><div className="top-avatar">AM</div></div></header> }
+function Stat({ icon: Icon, label, value, note, accent }: any) { return <div className="stat-card"><div className={`stat-icon ${accent}`}><Icon size={17}/></div><div className="stat-label">{label}<span>···</span></div><strong>{value}</strong><small className={note.startsWith('+') ? 'positive' : ''}>{note}</small></div> }
+function Heatmap() { const cells = Array.from({ length: 119 }, (_, i) => (i * 7 + 3) % 5); return <div className="heatmap">{cells.map((v, i) => <span key={i} className={`heat-${v}`} />)}</div> }
+function ProgressRing({ value }: { value: number }) { return <div className="ring" style={{ '--progress': `${value * 3.6}deg` } as React.CSSProperties}><div><b>{value}</b><small>/100</small></div></div> }
+function Dashboard({ setCurrent }: { setCurrent: (v: View) => void }) {
+  return <><section className="welcome"><div><p className="eyebrow">TUESDAY, OCTOBER 14, 2025</p><h1>Good morning, Alex <span>✦</span></h1><p className="subtle">Let&apos;s keep your momentum going.</p></div><button className="primary" onClick={() => setCurrent('Habits')}><Plus size={17}/> Add habit</button></section><section className="stats"><Stat icon={Flame} label="Current streak" value="12 days" note="+3 from last week" accent="orange"/><Stat icon={Gauge} label="Completion rate" value="82.4%" note="+6.2% vs last month" accent="violet"/><Stat icon={Target} label="Active habits" value="4" note="1 due today" accent="blue"/><Stat icon={TrendingUp} label="Consistency score" value="78" note="Top 18% this month" accent="teal"/></section><div className="dashboard-grid"><section className="panel weekly-panel"><div className="panel-head"><div><h2>Weekly progress</h2><p>How you&apos;re showing up this week</p></div><button className="select">This week <ChevronDown size={14}/></button></div><div className="chart"><div className="chart-y"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div><div className="bars">{weekly.map((item, i) => <div className="bar-col" key={item.day}><div className="bar-track"><div className={`bar ${i === 5 ? 'highlight' : ''}`} style={{ height: `${item.value}%` }}><b>{item.value}%</b></div></div><small>{item.day}</small></div>)}</div></div></section><section className="panel score-panel"><div className="panel-head"><div><h2>Consistency score</h2><p>Your activity rhythm</p></div><MoreHorizontal size={18}/></div><div className="score-wrap"><ProgressRing value={78}/><div className="score-copy"><b>Strong rhythm</b><p>You&apos;re building a reliable routine. Keep it up!</p><span><TrendingUp size={13}/> 8% this month</span></div></div><div className="score-breakdown"><span>Completion consistency <b>82%</b></span><span>Streak stability <b>74%</b></span><span>Weekly regularity <b>77%</b></span></div></section><section className="panel heat-panel"><div className="panel-head"><div><h2>Activity overview</h2><p>Your completion history</p></div><button className="select">This year <ChevronDown size={14}/></button></div><div className="heat-top"><b>436 completions</b><span>Less <i className="legend l0"/><i className="legend l1"/><i className="legend l2"/><i className="legend l3"/> More</span></div><Heatmap/><div className="months"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div></section><section className="panel habits-panel"><div className="panel-head"><div><h2>Habit progress</h2><p>Today&apos;s momentum at a glance</p></div><button className="text-btn" onClick={() => setCurrent('Habits')}>View all <span>→</span></button></div><div className="habit-list">{habits.map(({ name, category, color, progress, streak, time, icon: Icon }) => <div className="habit-row" key={name}><div className={`habit-icon ${color}`}><Icon size={17}/></div><div className="habit-info"><b>{name}</b><small>{category} · {time}</small></div><div className="mini-progress"><div><span style={{ width: `${progress}%` }}/></div><small>{progress}%</small></div><div className="streak"><Flame size={14}/>{streak}</div><button className="check-btn"><Check size={15}/></button></div>)}</div></section><section className="panel activity-panel"><div className="panel-head"><div><h2>Recent activity</h2><p>Your latest wins and misses</p></div><button className="text-btn" onClick={() => setCurrent('Calendar')}>View calendar <span>→</span></button></div><div className="activity-list">{activities.map(([title, detail, color, time]) => <div className="activity-row" key={title}><div className={`activity-dot ${color}`}><Check size={13}/></div><div><b>{title}</b><small>{detail}</small></div><time>{time}</time></div>)}</div></section><section className="panel insight-banner"><div className="insight-symbol"><Sparkles size={20}/></div><div><p className="eyebrow">A SMALL PATTERN</p><h2>Your best days are ahead of you.</h2><p>You&apos;re 23% more consistent on days you complete your morning routine.</p></div><button onClick={() => setCurrent('ML Insights')}>See insights <span>→</span></button></section></div></>
+}
+function GenericView({ current, setCurrent }: { current: View; setCurrent: (v: View) => void }) { const copy: Record<string, [string,string]> = { Habits: ['Your habits','Build a routine that fits your life.'], Calendar: ['Activity calendar','See your consistency over time.'], Analytics: ['Analytics','Turn your activity into a clearer picture.'], 'ML Insights': ['ML Insights','Patterns from your history, made useful.'], Goals: ['Goals & targets','Small milestones. Meaningful momentum.'], Notifications: ['Notifications','Stay close to the habits that matter.'], Profile: ['Your profile','Your HabitFlow workspace and preferences.'], Settings: ['Settings','Make HabitFlow work the way you do.'] }; const [title, subtitle] = copy[current] || ['Dashboard','']; return <section className="empty-view"><div className="empty-icon"><Sparkles size={24}/></div><p className="eyebrow">HABITFLOW / {current.toUpperCase()}</p><h1>{title}</h1><p className="subtle">{subtitle}</p><div className="empty-card"><div className="empty-card-icon"><Zap size={20}/></div><div><b>This view is ready for your data</b><p>Connect your backend when you&apos;re ready. The UI is structured for habits, analytics, and ML responses.</p></div><button className="primary" onClick={() => setCurrent('Dashboard')}>Back to dashboard</button></div></section> }
+export default function Page() { const [current, setCurrent] = useState<View>('Dashboard'); const content = useMemo(() => current === 'Dashboard' ? <Dashboard setCurrent={setCurrent}/> : <GenericView current={current} setCurrent={setCurrent}/>, [current]); return <div className="app-shell"><Sidebar current={current} setCurrent={setCurrent}/><div className="main"><Topbar setCurrent={setCurrent}/><main className="content">{content}</main></div></div> }
